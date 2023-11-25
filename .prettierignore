@@ -2,6 +2,7 @@
 /.vscode
 ./dist
 
+# file of the process 
 .env
 *.env
 .env.*
