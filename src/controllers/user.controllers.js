@@ -20,10 +20,10 @@ const registerUser = asyncHandler(async (req , res ) =>{
         6. return response.*/
 
     const {username , email , fullname , password }= req.body;
-    console.log("username = " , username );
-    console.log("email = " , email );
-    console.log("fullname = " , fullname );
-    console.log("password = " , password );
+    // console.log("username = " , username );
+    // console.log("email = " , email );
+    // console.log("fullname = " , fullname );
+    // console.log("password = " , password );
 
     if ( 
         [username , email , fullname , password ].some((feild) =>
@@ -40,10 +40,10 @@ const registerUser = asyncHandler(async (req , res ) =>{
         throw new ApiError(409 , "User Name and Email is Already been Taken ")
     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path
+    const avatarLocalPath = req?.files?.avatar[0]?.path
     const coverImageLocalPath = req.files?.coverImage[0].path
     if (avatarLocalPath && coverImageLocalPath){
-    console.log("req.files" ,req.files?.avatar[0]?.path );
+    console.log("req.files" ,req?.files?.avatar[0]?.path );
     }
 
     if (!avatarLocalPath){
@@ -60,7 +60,7 @@ const registerUser = asyncHandler(async (req , res ) =>{
     const user = User.create({
         fullname,
         email,
-        username : username.toLowerCase(),
+        username: username.toLowerCase(),
         password,
         avatar : avatar.url,
         coverImage : coverImage?.url || "",
@@ -70,8 +70,8 @@ const registerUser = asyncHandler(async (req , res ) =>{
         "-password -refreshToken"
     )
 
-    if (!createdUser){
-        throw new ApiError(508 , "Something went wrong while registration ")
+    if (!createdUser) {
+        throw new ApiError(508, "Something sad and went wrong while registering the user")
     }
 
     res.status(201).json(
