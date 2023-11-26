@@ -12,7 +12,7 @@ const registerUser = asyncHandler(async (req , res ) =>{
         3. take the coverImage and avatar of the user and save 
             it in the temp and save it in the cloudinary.
 
-            3.1 check for avatar as it is required
+            3.1 check for avatar as it is required 
 
         5. in case of error in the uploading of the file in the 
             cloud then catch the error and resolve the 
@@ -23,6 +23,9 @@ const registerUser = asyncHandler(async (req , res ) =>{
         
     */
 
+        res.status(200).json({
+            message : "ok"
+        })
 })
 
 export {registerUser}
