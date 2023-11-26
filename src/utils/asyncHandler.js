@@ -1,3 +1,4 @@
+/*
 const asyncHandler = (requesthandler) => {
     return (req , res , next ) => {
         Promise.resolve(requesthandler(req , res , next)).catch((err) => {
@@ -5,12 +6,9 @@ const asyncHandler = (requesthandler) => {
         })
     }
 }
+*/
 
-export {asyncHandler}
-
-
-// higher order function in side the try catch block 
-/*const asyncHandler = (func) => async (req , res , next ) =>  {
+const asyncHandler = (func) => async (req , res , next ) =>  {
     try {
         await func(req , res , next);
     }
@@ -21,4 +19,10 @@ export {asyncHandler}
         })
         throw err;
     }
-}*/
+}
+
+
+export {asyncHandler}
+
+
+// higher order function in side the try catch block 
