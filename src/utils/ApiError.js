@@ -8,13 +8,13 @@ class ApiError extends Error{
    */
 
     constructor(
-        statuscode,
+        statuscode=400,
         message = "Something Went Wrong !! !! ",
         errors = [],
         stack = ""
     ){
         super(message);
-        this.statusCode = statusCode;
+        this.statusCode = statuscode;
         this.data = null;
         this.message = message;
         this.success = false;
