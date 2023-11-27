@@ -20,6 +20,7 @@ const uploadOnCloudinary = async (localFilePath) =>{
         // file has been uploaded 
         console.log(" CLOUDINARY : file has been uploaded");
         console.log("CLOUDINARY : public url " , response.url);
+        fs.unlinkSync(localFilePath) // remove the local save temp file
         return response;
     } catch (error) {
         fs.unlinkSync(localFilePath) // remove the local save temp file
