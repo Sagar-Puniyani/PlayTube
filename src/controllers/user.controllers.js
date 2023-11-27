@@ -25,6 +25,8 @@ const registerUser = asyncHandler(async (req , res ) =>{
     // console.log("fullname = " , fullname );
     // console.log("password = " , password );
 
+    console.log("req " , req.files)
+
     if ( 
         [username , email , fullname , password ].some((feild) =>
             feild?.trim() === "")
@@ -40,7 +42,7 @@ const registerUser = asyncHandler(async (req , res ) =>{
         throw new ApiError(409 , "User Name and Email is Already been Taken ")
     }
 
-    const avatarLocalPath = req?.files?.avatar[0]?.path
+    const avatarLocalPath = req.files?.avatar[0]?.path
     const coverImageLocalPath = req.files?.coverImage[0].path
     if (avatarLocalPath && coverImageLocalPath){
     console.log("req.files" ,req?.files?.avatar[0]?.path );
@@ -57,7 +59,7 @@ const registerUser = asyncHandler(async (req , res ) =>{
         throw new ApiError(406 , "Avatar Image is not send properly ")
     }
 
-    const user = User.create({
+    const user = await User.create({
         fullname,
         email,
         username: username.toLowerCase(),
@@ -67,7 +69,7 @@ const registerUser = asyncHandler(async (req , res ) =>{
     })
 
     const createdUser = await User.findById(user._id).select(
-        "-password -refreshToken"
+        " -refreshToken"
     )
 
     if (!createdUser) {
