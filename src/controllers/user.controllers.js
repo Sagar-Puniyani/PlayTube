@@ -45,7 +45,7 @@ const registerUser = asyncHandler(async (req , res ) =>{
     const avatarLocalPath = req.files?.avatar[0]?.path
     let coverImageLocalPath
     if (req.files && req.files.coverImage instanceof Array && req.files.coverImage.length >0 ){
-        coverImageLocalPath = req.files?.coverImage[0].path
+        coverImageLocalPath = req.files?.coverImage[0].path;
     }
 
 
@@ -54,14 +54,14 @@ const registerUser = asyncHandler(async (req , res ) =>{
     }
 
     if (!avatarLocalPath){
-        throw new ApiError(406 , "Avatar Image is not send properly ")
+        throw new ApiError(406 , "Avatar Image is not send properly ");
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
     if (!avatar){
-        throw new ApiError(406 , "Avatar Image is not send properly ")
+        throw new ApiError(406 , "Avatar Image is not send properly ");
     }
 
     const user = await User.create({
@@ -71,18 +71,18 @@ const registerUser = asyncHandler(async (req , res ) =>{
         password,
         avatar : avatar.url,
         coverImage : coverImage?.url || "",
-    })
+    });
 
     const createdUser = await User.findById(user._id).select(
         " -refreshToken"
-    )
+    );
 
     if (!createdUser) {
-        throw new ApiError(508, "Something sad and went wrong while registering the user")
-    }
+        throw new ApiError(508, "Something sad and went wrong while registering the user");
+    };
 
     res.status(201).json(
         new ApiResponse(200 , createdUser , "User Created Successfully ")
-    )
+    );
 })
-export {registerUser}
+export {registerUser};
