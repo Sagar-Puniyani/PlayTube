@@ -4,6 +4,26 @@ import { User } from "../models/user.models.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiRespone.js"
 
+const GenerateAccessTokenandRefreshToken = async( userId ) => {
+    try {
+        const userInstance = await User.findById(userId);
+        const accessToken = userInstance.GenerateAccessToken();
+        const refreshToken = userInstance.GenerateRefreshToken();
+
+        userInstance.refreshToken = refreshToken;
+        await userInstance.save({ validateBeforeSave: false });
+
+        return {
+            accessToken ,
+            refreshToken
+        }
+        
+    } catch (err ) {
+        throw new ApiError (506 , "Error in generating Refresh and Access Token " , err);
+    }
+
+}
+
 const registerUser = asyncHandler(async (req , res ) =>{
     /* steps to register the user
         1. get all the detail fromn the frontend / postman 
@@ -85,4 +105,40 @@ const registerUser = asyncHandler(async (req , res ) =>{
         new ApiResponse(200 , createdUser , "User Created Successfully ")
     );
 })
-export {registerUser};
+
+const loginUser = asyncHandler(async (req , res )=>{
+    /*  1. Takeout data from req.body
+            1.1 check email or name 
+            1.2 check the password 
+        2.  add refresh and access token on it 
+        3. sent the tokens in the cookies 
+    */
+
+    const {userName , email , password } = req.body;
+
+    if (!userName || !email ){
+        throw new ApiError(400 , "UserName and Emial is required !!! ");
+    }
+
+    // find the user either by username or email 
+    const userInstance  = await User.findOne({
+        $or: [{userName} , {email}]
+    })
+
+    // User is not in the DataBase 
+    if (!userInstance ){
+        throw new ApiError(404 , "User Not Found !!! ")
+    }
+
+    // check the password correct or not 
+    const PasswordInstance = await userInstance.isPasswordCorrect(password);
+    if (!PasswordInstance ) {
+        throw new ApiError (401 , "Invalid User Credentials ");
+    }
+
+    const {accessToken , refreshToken} = await GenerateAccessTokenandRefreshToken(userInstance._id)
+})
+export {
+    registerUser,
+    loginUser
+};
