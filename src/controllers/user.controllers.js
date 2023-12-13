@@ -40,12 +40,8 @@ const registerUser = asyncHandler(async (req , res ) =>{
         6. return response.*/
 
     const {username , email , fullname , password }= req.body;
-    // console.log("username = " , username );
-    // console.log("email = " , email );
-    // console.log("fullname = " , fullname );
-    // console.log("password = " , password );
-
-    console.log("req " , req.files)
+    console.log("Request body is : " , req.body);
+    console.log("Request Files are :  " , req.files)
 
     if ( 
         [username , email , fullname , password ].some((feild) =>
@@ -106,23 +102,24 @@ const registerUser = asyncHandler(async (req , res ) =>{
     );
 })
 
-const loginUser = asyncHandler(async (req , res )=>{
+const loginUser = asyncHandler(async (req , res ) => {
     /*  1. Takeout data from req.body
             1.1 check email or name 
             1.2 check the password 
-        2.  add refresh and access token on it 
+        2. add refresh and access token on it 
         3. sent the tokens in the cookies 
     */
 
-    const {userName , email , password } = req.body;
+    const {username , email , password } = req.body;
+    console.log("Request body is : " , req.body);
 
-    if (!userName || !email ){
-        throw new ApiError(400 , "UserName and Emial is required !!! ");
+    if (!username || !email ){
+        throw new ApiError(400 ,"UserName and Email is required !!! ");
     }
 
     // find the user either by username or email 
     const userInstance  = await User.findOne({
-        $or: [{userName} , {email}]
+        $or: [{username} , {email}]
     })
 
     // User is not in the DataBase 
@@ -137,6 +134,10 @@ const loginUser = asyncHandler(async (req , res )=>{
     }
 
     const {accessToken , refreshToken} = await GenerateAccessTokenandRefreshToken(userInstance._id)
+    
+    res.status(200);
+
+
 })
 export {
     registerUser,
