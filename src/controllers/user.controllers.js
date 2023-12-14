@@ -156,13 +156,43 @@ const loginUser = asyncHandler(async (req , res ) => {
                     user : loggedInUser ,  refreshToken , accessToken
                 }
                 ,
-                "✅ Tokens Are Generated "
+                "✅ Tokens Are Generated and send in Cookie "
             )
         );
     console.log("accessToken is : " , accessToken);
     console.log("RefreshToken is : " , refreshToken);
 })
+
+const logoutUser = asyncHandler(async(req , res ) => {
+
+    try {
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $set: {refreshToken : undefined}
+            },
+            {
+                new : true 
+            }
+        )
+
+        const options = {
+            httpOnly : true ,
+            secure : true 
+        }
+
+        res.status(200)
+            .clearCookie("accessToken" , options)
+            .clearCookie("refreshToken" , options)
+            .json(new ApiResponse(200 , {} , "User Logged Out"));
+
+        // options 
+    } catch (error) {
+        
+    }
+})
 export {
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 };
