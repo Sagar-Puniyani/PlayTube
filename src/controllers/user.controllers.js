@@ -112,6 +112,9 @@ const loginUser = asyncHandler(async (req , res ) => {
 
     const {username , email , password } = req.body;
     console.log("Request body is : " , req.body);
+        console.log("my user is : ", username);
+        console.log("my email is : ", email);
+    
 
     if (!username || !email ){
         throw new ApiError(400 ,"UserName and Email is required !!! ");
@@ -130,14 +133,14 @@ const loginUser = asyncHandler(async (req , res ) => {
     // check the password correct or not 
     const PasswordInstance = await userInstance.isPasswordCorrect(password);
     if (!PasswordInstance ) {
-        throw new ApiError (401 , "Invalid User Credentials ");
+        throw new ApiError (401 , " 😌 Invalid User Credentials ");
     }
 
-    const {accessToken , refreshToken} = await GenerateAccessTokenandRefreshToken(userInstance._id)
+    const {accessToken , refreshToken} = await GenerateAccessTokenandRefreshToken(userInstance._id);
     
-    res.status(200);
-
-
+    res.status(200).json({"message" : "✅ Tokens are generated "});
+    console.log("accessToken is : " , accessToken);
+    console.log("RefreshToken is : " , refreshToken);
 })
 export {
     registerUser,
