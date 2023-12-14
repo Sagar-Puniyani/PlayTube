@@ -117,7 +117,7 @@ const loginUser = asyncHandler(async (req , res ) => {
     
 
     if (!username || !email ){
-        throw new ApiError(400 ,"UserName and Email is required !!! ");
+        res.json(new ApiError(400 ,"UserName and Email is required !!! "));
     }
 
     // find the user either by username or email 
@@ -127,6 +127,7 @@ const loginUser = asyncHandler(async (req , res ) => {
 
     // User is not in the DataBase 
     if (!userInstance ){
+        res.json({"message" : "❌ error in Founding the object "});
         throw new ApiError(404 , "User Not Found !!! ")
     }
 
@@ -137,8 +138,27 @@ const loginUser = asyncHandler(async (req , res ) => {
     }
 
     const {accessToken , refreshToken} = await GenerateAccessTokenandRefreshToken(userInstance._id);
-    
-    res.status(200).json({"message" : "✅ Tokens are generated "});
+
+    const  loggedInUser = await  User.findById(userInstance._id).select("-password -refreshToken");
+
+    const options = {
+        httpOnly : true ,
+        secure : true 
+    }
+
+    res.status(200)
+        .cookie("accessToken" , accessToken , options)
+        .cookie("refreshToken" , refreshToken , options)
+        .json(
+            new ApiResponse(
+                200 ,
+                {
+                    user : loggedInUser ,  refreshToken , accessToken
+                }
+                ,
+                "✅ Tokens Are Generated "
+            )
+        );
     console.log("accessToken is : " , accessToken);
     console.log("RefreshToken is : " , refreshToken);
 })
