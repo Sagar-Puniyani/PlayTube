@@ -1,15 +1,18 @@
-import { User } from "../models/user.models";
-import { ApiError } from "../utils/ApiError";
-import { asyncHandler } from "../utils/asyncHandler";
+import { User }  from "../models/user.models.js";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import Jwt from "jsonwebtoken";
 
 const authToken = asyncHandler(async(req , res , next ) =>{
     try {
-        const accessToken = req.cookie?.accessToken || req.header("Authorization")?.replace("Bearer " , "");
+        const accessToken = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
+        console.log("accessToken ", accessToken);
     
         if (!accessToken ){
-            const error =   new ApiError(401 , "❌ User Never Loged In ")
-            res.json(error )
+            res.json({
+                'status' : 409,
+                'message' : 'User Never Logged In'
+            })
         }
     
         const DecodedToken = Jwt.verify(
@@ -32,7 +35,7 @@ const authToken = asyncHandler(async(req , res , next ) =>{
         next();
 
     } catch (error) {
-        const err = new ApiError(505 , error?.message || "Something Went Wrong while logout process  ");
+        const err = new ApiError(508 , error?.message || "Something Went Wrong while logout process  ");
         res.json(err)
     }
 })

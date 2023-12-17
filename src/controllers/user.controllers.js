@@ -111,12 +111,12 @@ const loginUser = asyncHandler(async (req , res ) => {
     */
 
     const {username , email , password } = req.body;
-    console.log("Request body is : " , req.body);
+        console.log("Request body is : " , req.body);
         console.log("my user is : ", username);
         console.log("my email is : ", email);
     
 
-    if (!username || !email ){
+    if (!(username || email) ){
         res.json(new ApiError(400 ,"UserName and Email is required !!! "));
     }
 
@@ -191,6 +191,8 @@ const logoutUser = asyncHandler(async(req , res ) => {
         
     }
 })
+
+const 
 export {
     registerUser,
     loginUser,
