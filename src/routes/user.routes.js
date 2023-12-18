@@ -21,6 +21,6 @@ router.route("/register").post(
 
 router.route("/login").post(loginUser);
 
-router.route("/logout").post( authToken , logoutUser)
-router.route("/logout").post( refreshaccessToken)
+router.route("/logout").get( authToken , logoutUser)
+router.route("/regenerateToken").get( refreshaccessToken)
 export default router;
