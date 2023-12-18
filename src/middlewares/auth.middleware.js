@@ -22,10 +22,6 @@ const authToken = asyncHandler(async(req , res , next ) =>{
     
         const userInstance  = await User.findById(DecodedToken?._id).select("-password -refreshToken")
     
-        /* TODO: 
-            Disscusion 
-        */
-    
     
         if (!userInstance ){
             const error = new ApiError(401 , "❌ user invalid AccessToken ")
