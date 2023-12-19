@@ -247,6 +247,23 @@ try {
 })
 
 
+const ChangeUserPassword = asyncHandler( async( req , res ) => {
+    const {odlPassword , newPassword } = req.body
+
+    const userInstance = User.findById(req.user?._id );
+    const isPasswordCorrect = userInstance.isPasswordCorrect(odlPassword);
+
+    if (!isPasswordCorrect){
+        res.json(
+            new ApiError( 407 , "Password is Not Correct ❌")
+        ) 
+    }
+
+    userInstance.password = newPassword;
+    userInstance.save({ validateBeforeSave: false }); 
+})
+
+
 export {
     registerUser,
     loginUser,
