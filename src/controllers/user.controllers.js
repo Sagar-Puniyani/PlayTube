@@ -248,25 +248,39 @@ try {
 
 
 const ChangeUserPassword = asyncHandler( async( req , res ) => {
-    const {odlPassword , newPassword } = req.body
-
-    const userInstance = User.findById(req.user?._id );
-    const isPasswordCorrect = userInstance.isPasswordCorrect(odlPassword);
-
-    if (!isPasswordCorrect){
-        res.json(
-            new ApiError( 407 , "Password is Not Correct ❌")
-        ) 
+    try {
+        const {odlPassword , newPassword } = req.body
+    
+        const userInstance = await User.findById(req.user?._id );
+        const isPasswordCorrect = await userInstance.isPasswordCorrect(odlPassword);
+    
+        if (!isPasswordCorrect){
+            res.json(
+                new ApiError( 407 , "Password is Not Correct ❌")
+            ) 
+        }
+    
+        userInstance.password = newPassword;
+        await userInstance.save({ validateBeforeSave: false });
+        
+        return res.status(200)
+            .json(new ApiResponse(200 , {} , "Password is changed !! "))
+    } catch (error) {
+        throw ApiError(405 , "Failed while changing the password" ,error.message)
     }
-
-    userInstance.password = newPassword;
-    userInstance.save({ validateBeforeSave: false }); 
 })
 
+
+const getCurrentUser = asyncHandler(async (req , res ) => {
+    return res.status(200)
+            .json(200 , req.user , "User Fetched Successfully !! 👍")
+})
 
 export {
     registerUser,
     loginUser,
     logoutUser,
-    refreshaccessToken
+    refreshaccessToken,
+    ChangeUserPassword,
+    getCurrentUser
 };
