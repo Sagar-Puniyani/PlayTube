@@ -285,7 +285,24 @@ const UpdateAccountDetails = asyncHandler(async(req , res ) => {
         throw new ApiError(409 , 
                 "All feild are Not Empty ");
     }
-    
+
+    const userInstance = await User.findByIdAndUpdate(req.user?._id , 
+        {
+            $set : {
+                fullname,
+                email
+            }
+        },
+        {
+            new : true
+        }).select(" -password");
+
+        return res.status(200)
+                .json(new ApiResponse(
+                    200,
+                    userInstance,
+                    "Account Details are changed Successfully ✅"
+                ))
 
 })
 
