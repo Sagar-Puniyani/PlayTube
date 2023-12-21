@@ -279,7 +279,14 @@ const getCurrentUser = asyncHandler(async (req , res ) => {
 
 
 const UpdateAccountDetails = asyncHandler(async(req , res ) => {
-    const {fullname , email } = req.user;
+    const {fullname , email } = req.body;
+
+    if (!(fullname ||  email)){
+        throw new ApiError(409 , 
+                "All feild are Not Empty ");
+    }
+    
+
 })
 
 
