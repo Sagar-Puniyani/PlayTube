@@ -266,14 +266,16 @@ const ChangeUserPassword = asyncHandler( async( req , res ) => {
         return res.status(200)
             .json(new ApiResponse(200 , {} , "Password is changed !! "))
     } catch (error) {
-        throw ApiError(405 , "Failed while changing the password" ,error.message)
+        throw new ApiError(405 , "Failed while changing the password" ,error.message)
     }
 })
 
 
 const getCurrentUser = asyncHandler(async (req , res ) => {
     return res.status(200)
-            .json(200 , req.user , "User Fetched Successfully !! 👍")
+            .json(
+                new ApiResponse(200 , req.user , "User Fetched Successfully !! 👍")
+                )
 
 })
 
@@ -295,7 +297,7 @@ const UpdateAccountDetails = asyncHandler(async(req , res ) => {
         },
         {
             new : true
-        }).select(" -password");
+        }).select(" -password -refreshToken");
 
         return res.status(200)
                 .json(new ApiResponse(
