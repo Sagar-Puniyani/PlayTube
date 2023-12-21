@@ -310,11 +310,11 @@ const UpdateAccountDetails = asyncHandler(async(req , res ) => {
 
 const updatecoverImage = asyncHandler(async(req , res) => {
     try {
-        const coverImagepath = req.files?.coverImage[0]?.path;
-    
+        const coverImagepath = req.file?.path;
+        console.log("coverImagepath " ,  coverImagepath );
         if ( !coverImagepath ) {
             res.json(
-                new ApiError(405 , 
+                new ApiError(419 , 
                     "CoverImage Path is Missing ")
             )
         }
@@ -336,7 +336,7 @@ const updatecoverImage = asyncHandler(async(req , res) => {
                 }
             },
             {new : true }
-        )
+        ).select(" -password -refreshToken ")
     
         return res.json(
             new ApiResponse(
@@ -356,7 +356,49 @@ const updatecoverImage = asyncHandler(async(req , res) => {
 
 
 const updateAvatarImage = asyncHandler( async(req , res ) => {
-
+    try {
+        const avatarpath = req.file?.path;
+        console.log("avatarpath " ,  avatarpath );
+        if ( !avatarpath ) {
+            res.json(
+                new ApiError(419 , 
+                    "Avatar Path is Missing ")
+            )
+        }
+    
+        const AvatarInstance = await uploadOnCloudinary(avatarpath)
+    
+        if (!AvatarInstance.url){
+            res.json(
+                new ApiError(409 , 
+                    "Avatar  Not uploaded")
+            )
+        }
+    
+        const AvatarUplodedInstance = await User.findByIdAndUpdate(
+            req.user?._id ,
+            {
+                $set : {
+                    avatar : AvatarInstance.url
+                }
+            },
+            {new : true }
+        ).select(" -password -refreshToken ")
+    
+        return res.json(
+            new ApiResponse(
+                200,
+                AvatarUplodedInstance,
+                "Avatar Updated Successfully ✅"
+            )
+        )
+    } catch (error) {
+        throw new ApiError(
+            406 , 
+            "Error while Updating Cover Image ❌",
+            error
+        )
+    }
 })
 
 export {
@@ -367,5 +409,6 @@ export {
     ChangeUserPassword,
     getCurrentUser,
     UpdateAccountDetails,
-    updatecoverImage
+    updatecoverImage,
+    updateAvatarImage
 };

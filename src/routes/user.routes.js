@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { ChangeUserPassword, UpdateAccountDetails, getCurrentUser, loginUser, logoutUser, refreshaccessToken, registerUser, updatecoverImage } from "../controllers/user.controllers.js";
+import { ChangeUserPassword, UpdateAccountDetails, getCurrentUser, loginUser, logoutUser, refreshaccessToken, registerUser, updateAvatarImage, updatecoverImage } from "../controllers/user.controllers.js";
 import {upload} from '../middlewares/multer.middleware.js'
 import { authToken } from "../middlewares/auth.middleware.js";
 
@@ -28,15 +28,12 @@ router.route("/getCurrentUser").get(authToken ,  getCurrentUser)
 router.route("/UpdateAccountDetails").post(authToken , UpdateAccountDetails)
 
 router.route("/updatecoverImage").put(authToken , 
-    upload.fields(
-        [
-        {
-            name : "coverImage",
-            maxCount :1
-        }
-    ]
-    ),
+    upload.single("coverImage"),
     updatecoverImage  )
+
+router.route("/updateAvatarImage").put(authToken , 
+    upload.single("avatar"),
+    updateAvatarImage  )
 
 
 export default router;
