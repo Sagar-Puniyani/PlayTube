@@ -274,7 +274,18 @@ const ChangeUserPassword = asyncHandler( async( req , res ) => {
 const getCurrentUser = asyncHandler(async (req , res ) => {
     return res.status(200)
             .json(200 , req.user , "User Fetched Successfully !! 👍")
+
 })
+
+
+const UpdateAccountDetails = asyncHandler(async(req , res ) => {
+    const {fullname , email } = req.user;
+})
+
+
+
+
+
 
 export {
     registerUser,
@@ -282,5 +293,6 @@ export {
     logoutUser,
     refreshaccessToken,
     ChangeUserPassword,
-    getCurrentUser
+    getCurrentUser,
+    UpdateAccountDetails
 };
