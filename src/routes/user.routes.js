@@ -35,9 +35,12 @@ router.route("/changepassword").post( authToken , ChangeUserPassword)
 router.route("/getCurrentUser").get(authToken ,  getCurrentUser)
 router.route("/UpdateAccountDetails").post(authToken , UpdateAccountDetails)
 
-router.route("/updatecoverImage").put(authToken , 
-    upload.single("coverImage"),
-    updatecoverImage  )
+router.route("/updatecoverImage")
+    .put(
+        authToken , 
+        upload.single("coverImage"),
+        updatecoverImage  
+        )
 
 router.route("/updateAvatarImage").put(authToken , 
     upload.single("avatar"),

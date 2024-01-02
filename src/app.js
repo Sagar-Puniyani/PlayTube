@@ -30,7 +30,7 @@ app.use(cookieParser())
 import userRouter from "./routes/user.routes.js";
 // routes declaration 
 app.use("/api/v1/users" , userRouter)
-app.use("/api/v1/sagar" , (req , res )=>{
+app.use("/api/v1/sagar" , (_ , res )=>{
     res.json({
         message : "OKAY"
     })
