@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import Jwt from "jsonwebtoken";
 
 const authToken = asyncHandler(async(req , res , next ) =>{
+    console.log("AuthToken check 👀👀👀👀");
     try {
         const accessToken = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
         console.log("accessToken ", accessToken);
