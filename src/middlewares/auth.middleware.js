@@ -12,7 +12,7 @@ const authToken = asyncHandler(async(req , res , next ) =>{
         if (!accessToken ){
             res.json({
                 'status' : 409,
-                'message' : 'User Never Logged In'
+                'message' : 'User Never Logged In 🤷‍♀️'
             })
         }
     
