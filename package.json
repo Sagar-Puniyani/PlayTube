@@ -13,7 +13,7 @@
     "you-tube",
     "clone"
   ],
-  "author": "Sagar",
+  "author": "Sagar Puniyani",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^3.0.1",
