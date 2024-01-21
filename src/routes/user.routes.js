@@ -10,7 +10,9 @@ import { ChangeUserPassword,
     updateAvatarImage, 
     updatecoverImage } from "../controllers/user.controllers.js";
 import {upload} from '../middlewares/multer.middleware.js'
-import { authToken } from "../middlewares/auth.middleware.js";
+import { authToken,
+        getAvatarAssets, 
+        getCoverImageAssets } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -39,12 +41,14 @@ router.route("/UpdateAccountDetails").post(authToken , UpdateAccountDetails)
 router.route("/updatecoverImage")
     .put(
         authToken , 
+        getCoverImageAssets,
         upload.single("coverImage"),
         updatecoverImage  
         )
 
 router.route("/updateAvatarImage")
     .put(authToken , 
+        getAvatarAssets,
         upload.single("avatar"),
         updateAvatarImage  
         )
