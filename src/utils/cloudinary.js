@@ -10,6 +10,7 @@ cloudinary.config({
 });
 
 
+
 const uploadOnCloudinary = async (localFilePath) =>{
     try {
         if (!localFilePath) return null;
@@ -20,7 +21,7 @@ const uploadOnCloudinary = async (localFilePath) =>{
         })
         // file has been uploaded 
         console.log(" CLOUDINARY : file has been uploaded");
-        console.log("CLOUDINARY : public url " , response.url);
+        console.log("CLOUDINARY : public url " , response.public_id);
         fs.unlinkSync(localFilePath) // remove the local save temp file
         return response;
     } catch (error) {
@@ -30,4 +31,24 @@ const uploadOnCloudinary = async (localFilePath) =>{
     }
 }
 
-export {uploadOnCloudinary}
+const deleteFromClouydinary = async ( assestpath )=>{
+    try {
+        if (!assestpath) return null;
+        console.log( "assestpath : " , assestpath);
+        const response = await cloudinary.uploader
+        .destroy(assestpath ,{
+            resource_type : 'image'
+        })
+        // file has been deleted 
+        console.log(" CLOUDINARY : file has been deleted");
+        console.log("CLOUDINARY : public url " , response);
+    } catch (error) {
+        console.error("CLOUDINARY : error " , error );
+        throw error
+    }
+}
+
+export {
+    uploadOnCloudinary,
+    deleteFromClouydinary
+}
