@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { User } from "../models/user.models.js";
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import {deleteFromClouydinary, uploadOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiRespone.js"
 import jwt  from "jsonwebtoken";
 import mongoose from "mongoose";
@@ -39,7 +39,9 @@ const registerUser = asyncHandler(async (req , res ) =>{
                 the avatar on the cloud 
         4. check for user is created or not 
         5. remove the password and the refresh token from response 
-        6. return response.*/
+        6. return response.
+            6.1 add the assets public id to the cookie 
+            */
 
     const {username , email , fullname , password }= req.body;
     console.log("Request body is : " , req.body);
@@ -99,7 +101,15 @@ const registerUser = asyncHandler(async (req , res ) =>{
         throw new ApiError(508, "Something sad and went wrong while registering the user");
     };
 
-    res.status(201).json(
+    const options = {
+        httpOnly : true ,
+        secure : true 
+    }
+
+    res.status(201)
+    .cookie("PublicIdAvatarAssets"  , avatar.public_id , options)
+    .cookie("PublicIdCoverImageAssets"  , coverImage?.public_id , options)
+    .json(
         new ApiResponse(200 , createdUser , "User Created Successfully ")
     );
 })
@@ -312,6 +322,7 @@ const UpdateAccountDetails = asyncHandler(async(req , res ) => {
 const updatecoverImage = asyncHandler(async(req , res) => {
     try {
         const coverImagepath = req.file?.path;
+        const assetspath = req.user?.public_id
         console.log("coverImagepath " ,  coverImagepath );
         if ( !coverImagepath ) {
             res.json(
@@ -338,8 +349,16 @@ const updatecoverImage = asyncHandler(async(req , res) => {
             },
             {new : true }
         ).select(" -password -refreshToken ")
+
+        await deleteFromClouydinary(assetspath);
     
-        return res.json(
+        const options = {
+            httpOnly : true ,
+            secure : true 
+        }
+        return res.status(200)
+        .cookie("PublicIdCoverImageAssets"  , CoverImageInstance?.public_id , options)
+        .json(
             new ApiResponse(
                 200,
                 CoverImageUplodedInstance,
@@ -359,7 +378,9 @@ const updatecoverImage = asyncHandler(async(req , res) => {
 const updateAvatarImage = asyncHandler( async(req , res ) => {
     try {
         const avatarpath = req.file?.path;
-        console.log("avatarpath " ,  avatarpath );
+        const assestpath = req.user?.public_id
+        // console.log("avatarpath " ,  avatarpath );
+        // console.log("assestpath " ,  assestpath );
         if ( !avatarpath ) {
             res.json(
                 new ApiError(419 , 
@@ -375,6 +396,9 @@ const updateAvatarImage = asyncHandler( async(req , res ) => {
                     "Avatar  Not uploaded")
             )
         }
+
+        await deleteFromClouydinary(assestpath); 
+        // console.log("assestpath 👀👀👀👀👀👀 = " , assestpath);
     
         const AvatarUplodedInstance = await User.findByIdAndUpdate(
             req.user?._id ,
@@ -385,13 +409,19 @@ const updateAvatarImage = asyncHandler( async(req , res ) => {
             },
             {new : true }
         ).select(" -password -refreshToken ")
-    
-        return res.json(
-            new ApiResponse(
-                200,
-                AvatarUplodedInstance,
-                "Avatar Updated Successfully ✅"
-            )
+        
+        const options = {
+            httpOnly : true ,
+            secure : true 
+        }
+        return res.status(200)
+            .cookie("PublicIdAvatarAssets"  , AvatarInstance.public_id , options)
+                .json(
+                    new ApiResponse(
+                        200,
+                        AvatarUplodedInstance,
+                        "Avatar Updated Successfully ✅"
+                    )
         )
     } catch (error) {
         throw new ApiError(
@@ -403,7 +433,6 @@ const updateAvatarImage = asyncHandler( async(req , res ) => {
 })
 
 const getUserProfile = asyncHandler(async(req , res )=> {
-    console.log("Get User Profile ✅✅✅✅✅✅");
     const  username  = req.params?.username;
     console.log("UserName : " ,  username);
 
