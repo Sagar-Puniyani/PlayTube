@@ -4,10 +4,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import Jwt from "jsonwebtoken";
 
 const authToken = asyncHandler(async(req , res , next ) =>{
-    console.log("AuthToken check 👀👀👀👀");
     try {
         const accessToken = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
-        console.log("accessToken ", accessToken);
+        // console.log("accessToken ", accessToken);
     
         if (!accessToken ){
             res.json({
@@ -37,4 +36,52 @@ const authToken = asyncHandler(async(req , res , next ) =>{
     }
 })
 
-export {authToken};
+const getAvatarAssets =  (req , res , next  ) => {
+    try {
+        const assestpath = req.cookies?.PublicIdAvatarAssets ||
+                            req.query.PublicIdAvatarAssets ||
+                            req.header("PublicIdAvatarAssets")
+    
+        if ( !assestpath ) {
+            res.json(
+                new ApiError(
+                    406 , "❌ Assets of Avatar is not found "
+                )
+            )
+        }
+        
+        console.log("assestpath ✅✅✅✅ " , assestpath);
+        req.user.public_id = assestpath;
+        next();
+    } catch (error) {
+        console.error("Avatar Assets Error : " , error);
+        throw error
+    }
+}
+
+const getCoverImageAssets = (req , res , next ) => {
+    try {
+        const assestpath = req.cookies?.PublicIdCoverImageAssets ||
+                            req.query.PublicIdCoverImageAssets ||
+                            req.header("PublicIdCoverImageAssets")
+    
+        if ( !assestpath ) {
+            res.json(
+                new ApiError(
+                    406 , "❌ Assets of CoverImage is not found "
+                )
+            )
+        }
+        
+        console.log("assestpath ✅✅✅✅ " , assestpath);
+        req.user.public_id = assestpath;
+        next();
+    } catch (error) {
+        console.error("CoverImage Assets Error : " , error);
+        throw error
+    }
+}
+export {authToken,
+        getAvatarAssets,
+        getCoverImageAssets
+        };
