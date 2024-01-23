@@ -379,8 +379,6 @@ const updateAvatarImage = asyncHandler( async(req , res ) => {
     try {
         const avatarpath = req.file?.path;
         const assestpath = req.user?.public_id
-        // console.log("avatarpath " ,  avatarpath );
-        // console.log("assestpath " ,  assestpath );
         if ( !avatarpath ) {
             res.json(
                 new ApiError(419 , 
@@ -397,6 +395,9 @@ const updateAvatarImage = asyncHandler( async(req , res ) => {
             )
         }
 
+        if (!assestpath ) {
+            throw new ApiError(405 , "Avatar assets is not found ")
+        }
         await deleteFromClouydinary(assestpath); 
         // console.log("assestpath 👀👀👀👀👀👀 = " , assestpath);
     
