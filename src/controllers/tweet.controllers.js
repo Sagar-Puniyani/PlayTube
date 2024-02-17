@@ -1,11 +1,13 @@
-import { Tweet } from "../models/tweet.models";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiRespone";
-import { asyncHandler } from "../utils/asyncHandler";
+import { Tweet } from "../models/tweet.models.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiRespone.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+
 
 const createTweet = asyncHandler(async (req, res) => {
     //TODO: create tweet
-    const {owner } = req.user?._id
+    const  owner  = req.user?._id;
+    console.log( "Owner : ", owner);
     if (! owner ){
         res.json(
             new ApiError(407 ,
@@ -36,6 +38,15 @@ const createTweet = asyncHandler(async (req, res) => {
         )
     }
     
+    const createdtweet = await Tweet.findById(tweetInstance._id) 
+
+
+    res.status(200)
+        .json(
+            new ApiResponse(
+                200 , createdtweet , "User is Created "
+            )
+        )
 })
 
 const getUserTweets = asyncHandler(async (req, res) => {
