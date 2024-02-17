@@ -1,9 +1,13 @@
 import { Router } from "express";
-import { authToken } from "../middlewares/auth.middleware";
+import { authToken } from "../middlewares/auth.middleware.js";
+import {getUserTweets ,
+        updateTweet,
+        deleteTweet,
+        createTweet} from "../controllers/tweet.controllers.js";
 
-const route = Router();
+const router = Router();
 
-route.use(authToken);
+router.use(authToken);
 
 router.route("/").post(createTweet);
 router.route("/user/:userId").get(getUserTweets);
