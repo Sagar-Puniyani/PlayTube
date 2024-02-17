@@ -200,7 +200,7 @@ const logoutUser = asyncHandler(async(req , res ) => {
 
         // options 
     } catch (error) {
-        
+        throw error
     }
 })
 
