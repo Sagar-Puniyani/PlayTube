@@ -7,7 +7,6 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 
 const createTweet = asyncHandler(async (req, res) => {
-    //TODO: create tweet
     const  owner  = req.user?._id;
     if (! owner ){
         res.json(
@@ -51,7 +50,6 @@ const createTweet = asyncHandler(async (req, res) => {
 })
 
 const getUserTweets = asyncHandler(async (req, res) => {
-    // TODO: get user tweets
     const userId = req.params?.userId;
 
     if ( !isValidObjectId(userId) ){
@@ -135,11 +133,67 @@ const getUserTweets = asyncHandler(async (req, res) => {
 })
 
 const updateTweet = asyncHandler(async (req, res) => {
-    //TODO: update tweet
+    const tweetId  = req.params?.tweetId;
+
+    if ( !tweetId) {
+        res.json(
+            new ApiError(409 , "Invalid Tweet Signature")
+        )
+    }
+
+    const { content } = req.body;
+
+    if ( !content ){
+        res.json(
+            new ApiError(407 , "Add Some Content to tweet")
+        )
+    }
+
+    const tweetInstance = await Tweet.findByIdAndUpdate(
+        tweetId,
+        {
+            $set : {
+                content
+            }
+        },
+        {
+            new : true 
+        }
+    )
+
+    if ( !tweetInstance ){
+        res.json(
+            new ApiError(407 , "Error in the Updatation of Tweet")
+        )
+    }
+
+    res.json(
+        new ApiResponse(200 , tweetInstance , "Updation is Done Successfully !! ")
+    )
 })
 
 const deleteTweet = asyncHandler(async (req, res) => {
-    //TODO: delete tweet
+    const tweetId = req.params?.tweetId;
+
+    if ( !tweetId) {
+        res.json(
+            new ApiError(409 , "Invalid Tweet Signature")
+        )
+    }
+
+    const deleteTweetInstance = await Tweet.deleteOne({
+        _id : new mongoose.Types.ObjectId(tweetId)
+    })
+
+    if ( !deleteTweetInstance ){
+        res.json(
+        new ApiError(408 , "Error While Deletion of the Tweet")    
+        )
+    }
+
+    res.json(
+        new ApiResponse(200 , deleteTweetInstance , "Deletion Process is Done")
+    )
 })
 
 export {
