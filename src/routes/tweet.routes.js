@@ -7,9 +7,11 @@ import {getUserTweets ,
 
 const router = Router();
 
-router.use(authToken);
 
-router.route("/").post(createTweet);
+
+router.route("/")
+        .post(authToken , createTweet);
+
 router.route("/user/:userId").get(getUserTweets);
 router.route("/:tweetId").patch(updateTweet).delete(deleteTweet);
 
