@@ -1,8 +1,14 @@
-import { asyncHandler } from "../utils/asyncHandler"
+import { asyncHandler } from "../utils/asyncHandler.js";
+import {ApiError } from "../utils/ApiError.js"
 
 const toggleSubscription = asyncHandler(async (req, res) => {
     const {channelId} = req.params
-    // TODO: toggle subscription
+    
+    if( !channelId ){
+        res.json(
+            new ApiError(407 , "Error In Channel")
+        )
+    }
 })
 
 // controller to return subscriber list of a channel
