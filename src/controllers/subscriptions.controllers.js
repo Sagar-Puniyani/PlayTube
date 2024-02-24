@@ -6,19 +6,31 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     
     if( !channelId ){
         res.json(
-            new ApiError(407 , "Error In Channel")
+            new ApiError(407 , "Error In Channel Identification ")
         )
     }
 })
 
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-    const {channelId} = req.params
+    const {channelId} = req.params;
+
+    if( !channelId ){
+        res.json(
+            new ApiError(407 , "Error In Channel Identification ")
+        )
+    }
 })
 
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
-    const { subscriberId } = req.params
+    const { subscriberId } = req.params;
+
+    if( !subscriberId ){
+        res.json(
+            new ApiError(407 , "Error In Subscription Identification ")
+        )
+    }
 })
 
 export {
