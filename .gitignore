@@ -117,4 +117,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+#some of the text files in the public folder 
+public/*.txt
+
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node
