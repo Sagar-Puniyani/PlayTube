@@ -5,6 +5,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     
 
     // Aggregation pipeline injecting on the need basis 
+    // When ever query fired pipeline must be changed according to that.🧐
     pipeline =  [];
 
     
