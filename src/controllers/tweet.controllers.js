@@ -50,7 +50,7 @@ const createTweet = asyncHandler(async (req, res) => {
 })
 
 const getUserTweets = asyncHandler(async (req, res) => {
-    const userId = req.params?.userId;
+    const userId = req.user?._id;
 
     if ( !isValidObjectId(userId) ){
         res.json(
@@ -70,21 +70,6 @@ const getUserTweets = asyncHandler(async (req, res) => {
                 localField: "_id",
                 foreignField: "owner",
                 as: "tweets",
-                pipeline : [
-                    {
-                        $lookup: {
-                            from: "likes",
-                            localField: "_id",
-                            foreignField: "tweet",
-                            as: "likes"
-                        }
-                    },
-                    {
-                        $project: {
-                            content : 1 
-                        }
-                    }
-                ]
             }
             
         },

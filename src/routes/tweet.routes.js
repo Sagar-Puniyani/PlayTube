@@ -12,7 +12,7 @@ const router = Router();
 router.route("/")
         .post(authToken , createTweet);
 
-router.route("/user/:userId").get(getUserTweets);
+router.route("/getUserTweet/").get(authToken , getUserTweets);
 router.route("/:tweetId").patch(updateTweet).delete(deleteTweet);
 
 export default router
