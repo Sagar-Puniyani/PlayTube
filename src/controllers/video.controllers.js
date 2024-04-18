@@ -101,8 +101,11 @@ try {
         }
     
         // Instances of those video output query 
-        const VidoeInstances = await Video.aggregate([pipeline] , options);
-    
+        const VidoeInstances = await Video.aggregate(pipeline , options);
+
+        /*
+        const videoInstances = await Video.aggregate(pipeline).skip((options.page - 1) * options.limit).limit(options.limit);
+        */
         if (!VidoeInstances) {
             res.json(
                 new ApiError(410 , "Error in Populating Database Call")
