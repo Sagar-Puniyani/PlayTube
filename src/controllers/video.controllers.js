@@ -1,11 +1,12 @@
-import { asyncHandler } from "../utils/asyncHandler";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiRespone.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import { Video } from "../models/video.models.js";
+import {uploadOnCloudinary ,  UploadVideoOnCloudinary } from "../utils/cloudinary.js"
 
 
+// get All video is for default UI of PlayTube
 const getAllVideos = asyncHandler(async (req, res) => {
 try {
         const { page = 1, limit = 10, thumbnailQuery , query, sortBy, sortType , channelUserId} = req.query;
@@ -127,8 +128,88 @@ try {
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
-    const { title, description} = req.body
-    // TODO: get video, upload to cloudinary, create video
+try {
+        const { title, description} = req.body;
+        // TODO: get video, upload to cloudinary, create video
+        /*
+            1. Take title and description from request querry 
+            2. take Video and thumbnail files from request 
+            3. upload files in cloudinay
+            4. Take its duration 
+            5. owner id come from the authToken 
+            6. default publish status of video is true 
+            7. No. of Views on the video ( default is 0 )
+         */
+    
+        const userId = req.user?._id;
+        if ( !userId ) {
+            res.json(
+                new ApiError( 407 , "User Never Logged In")
+            )
+        }
+    
+        if ( !(title && description )){
+            res.json(
+                new ApiError(410 , "Title and Description are required")
+            )
+        }
+
+        console.log("Title : " , title );
+        console.log("description : " , description );
+
+
+        const videofilePath = req.files?.videoFile[0]?.path;
+        const thumbnailPath  = req.files?.thumbnail[0]?.path;
+
+        console.log("videofilePath " , videofilePath);
+        console.log("thumbnailPath " , thumbnailPath);
+    
+        if ( !videofilePath ){
+            res.json(
+                new ApiError(409 , "Video File Not send Properly")
+            )
+        }
+    
+        if ( !thumbnailPath ){
+            res.json(
+                new ApiError(411 , "Thumbnail File Not send Properly")
+            )
+        }
+    
+        console.log("First");
+        const uploadedVideo = await UploadVideoOnCloudinary(videofile);
+        const uploadThumbnail = await uploadOnCloudinary(thumbnail);
+        console.log("uploadedVideo.duration 👀👀👀 : " , uploadedVideo.duration);
+        console.log("Second");
+
+        const videoInstance  = await Video.create({
+            title,
+            description ,
+            owner : userId,
+            videoFile : uploadedVideo.url,
+            thumbnail : uploadThumbnail.url,
+            duration : uploadedVideo.duration,
+            views : 0,
+            isPublished : true,
+        })
+    
+        if ( !videoInstance ){
+            res.json( 
+                new ApiError(415 , "Error While Upload Video To Mongo")
+            )
+        }
+
+
+        res.json(
+            new ApiResponse(200 , "Upload Video Successfully")
+        )
+} catch (error) {
+    res.json(
+        new ApiError(500 , "Server Error " + error.message )
+    )
+}
+
+
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
