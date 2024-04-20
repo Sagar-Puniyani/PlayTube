@@ -176,32 +176,37 @@ try {
             )
         }
     
-        console.log("First");
-        const uploadedVideo = await UploadVideoOnCloudinary(videofile);
-        const uploadThumbnail = await uploadOnCloudinary(thumbnail);
-        console.log("uploadedVideo.duration 👀👀👀 : " , uploadedVideo.duration);
-        console.log("Second");
-
+        const uploadThumbnail = await uploadOnCloudinary(thumbnailPath);
+        console.log("uploadThumbnail : " , uploadThumbnail);
+        const uploadedVideo = await UploadVideoOnCloudinary(videofilePath);
+        console.log("uploadedVideo.duration 👀👀👀 : " , uploadedVideo.duration , " sec ");
+        
+        
+        
+            console.log("First");
         const videoInstance  = await Video.create({
             title,
             description ,
             owner : userId,
-            videoFile : uploadedVideo.url,
+            videofile : uploadedVideo.url,
             thumbnail : uploadThumbnail.url,
             duration : uploadedVideo.duration,
             views : 0,
             isPublished : true,
         })
+        console.log("Second");
     
+        
         if ( !videoInstance ){
             res.json( 
                 new ApiError(415 , "Error While Upload Video To Mongo")
             )
         }
 
+        console.log("👀👀👀👀👀videoInstance  : " , videoInstance  );
 
         res.json(
-            new ApiResponse(200 , "Upload Video Successfully")
+            new ApiResponse(200 , {"data" : videoInstance},    "Upload Video Successfully" )
         )
 } catch (error) {
     res.json(
