@@ -213,13 +213,36 @@ try {
         new ApiError(500 , "Server Error " + error.message )
     )
 }
-
-
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    //TODO: get video by id
+try {
+        const { videoId } = req.params
+        //TODO: get video by id
+        if ( !videoId ){
+            return res.json(
+                new ApiError( 409 , "Video Id is Not properly Conveyed")
+            )
+        }
+        console.log("Video ID : " , videoId);
+    
+        const videoInstance = await Video.findById(videoId);
+        console.log("Video Found");
+        if ( !videoInstance ) {
+            return res.json(
+                new ApiError(407 , "Video Mongo is Not Uploaded")
+            )
+        }
+
+    
+        return res.json(
+            new ApiResponse(206, {data : videoInstance } , {message : "Video Found"})
+        )
+} catch (error) {
+    res.json( 
+        new ApiError(404 , "Error Get Video By Id " + error.message)
+    )
+}
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
