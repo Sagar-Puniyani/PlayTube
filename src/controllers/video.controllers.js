@@ -216,6 +216,11 @@ try {
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
+
+    /*
+        if video is get to UI on Video Player than 
+        view Count should be increased by +1
+     */
 try {
         const { videoId } = req.params
         //TODO: get video by id
@@ -225,8 +230,14 @@ try {
             )
         }
         console.log("Video ID : " , videoId);
+
+        const Videoupdate = {
+            $inc : {views : 1}
+        }
     
-        const videoInstance = await Video.findById(videoId);
+        const videoInstance = await Video.findByIdAndUpdate(videoId , Videoupdate , {
+            new : true
+        });
         console.log("Video Found");
         if ( !videoInstance ) {
             return res.json(
@@ -234,7 +245,7 @@ try {
             )
         }
 
-    
+
         return res.json(
             new ApiResponse(206, {data : videoInstance } , {message : "Video Found"})
         )
