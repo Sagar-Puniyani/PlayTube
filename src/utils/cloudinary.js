@@ -107,8 +107,27 @@ const deleteFromClouydinary = async ( assestpath )=>{
 }
 
 
+const deleteVideoFromClouydinary = async ( assestpath )=>{
+    try {
+        console.log("Try To delete The Video");
+        if (!assestpath) return null;
+        console.log( "assestpath : " , assestpath);
+        const response = await cloudinary.uploader
+        .destroy(assestpath ,{
+            resource_type : 'video'
+        })
+        // file has been deleted 
+        console.log(" CLOUDINARY : file has been deleted");
+        console.log("CLOUDINARY : public url " , response);
+    } catch (error) {
+        console.error("CLOUDINARY : error " , error );
+        throw error
+    }
+}
+
 export {
     uploadOnCloudinary,
     deleteFromClouydinary,
-    UploadVideoOnCloudinary
+    UploadVideoOnCloudinary,
+    deleteVideoFromClouydinary
 }
