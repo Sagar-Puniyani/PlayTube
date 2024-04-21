@@ -3,7 +3,10 @@ import { ApiResponse } from "../utils/ApiRespone.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import { Video } from "../models/video.models.js";
-import {uploadOnCloudinary ,  UploadVideoOnCloudinary } from "../utils/cloudinary.js"
+import {    uploadOnCloudinary,
+            UploadVideoOnCloudinary,
+            deleteVideoFromClouydinary,
+        } from "../utils/cloudinary.js"
 
 
 // get All video is for default UI of PlayTube
@@ -180,10 +183,11 @@ try {
         console.log("uploadThumbnail : " , uploadThumbnail);
         const uploadedVideo = await UploadVideoOnCloudinary(videofilePath);
         console.log("uploadedVideo.duration 👀👀👀 : " , uploadedVideo.duration , " sec ");
+        console.log("Public URL ID : " , uploadedVideo.public_id );
         
         
         
-            console.log("First");
+        console.log("First");
         const videoInstance  = await Video.create({
             title,
             description ,
@@ -257,18 +261,148 @@ try {
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    //TODO: update video details like title, description, thumbnail
+    try {
+        const { videoId } = req.params
+        // update video details like title, description, thumbnail
+    
+        if ( !videoId ){
+            return res.json(
+                new ApiError( 406 , "Video Identity didn't provided")
+            )}
+
+        
+        console.log("video Id : " , videoId);
+    
+        const {title , description , thumbnail } = req.body;
+        const updateFilter = {};
+        
+        if ( !(title || description || thumbnail) ){
+            return res.json(
+                new ApiError(409 , "There no change detected")
+            )
+        }
+    
+        if ( title ) updateFilter.title = title;
+        if ( description) updateFilter.description = description;
+    
+        const thumbnailPath  = req.file?.path;
+        console.log("thumbnailPath : " , thumbnailPath);
+        if ( thumbnailPath ) {
+            const uploadedThumbnail = await uploadOnCloudinary(thumbnailPath);
+            updateFilter.thumbnail = uploadedThumbnail.url;
+        }
+
+        console.log(" Update Filter : " , updateFilter);
+    
+        const videoInstance = await Video.findByIdAndUpdate(videoId , updateFilter , {
+            new : true 
+        })
+
+        console.log("videoInstance : " , videoInstance);
+        if ( !videoInstance ) {
+            return res.json(
+                new ApiError(408 , "There No Mongo Instance")
+            )
+        }
+
+    
+        return res.json( 
+            new ApiResponse(207 , {data : videoInstance} , {message : "Video Update Successfully"})
+        )
+    } catch (error) {
+        res.json( 
+            new ApiError(404 , "Error Get Video By Id " + error.message)
+        )
+    }
 
 })
 
 const deleteVideo = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    //TODO: delete video
+    try {
+        const { videoId } = req.params
+        // delete video
+    
+        if( !videoId ) {
+            res.json( 
+                new ApiError(209 , "There no change detected")
+            )
+        }
+    
+        // 1. first is to delete Video from Cloudinary
+        const videoInstance = await Video.findById(videoId);
+        console.log("Video Url : " , videoInstance.videofile);
+    
+        if ( !videoInstance ) {
+            return res.json(
+                new ApiError(408 , "VideoInstance is not found  properly")
+            )
+        }
+    
+        const publicUrlID = videoInstance.videofile.split("videos/")[1].split(".")[0];
+        console.log("publicUrlID : " , publicUrlID );
+    
+        await deleteVideoFromClouydinary("videos/"+publicUrlID);
+    
+        const DeleteVideo = await Video.findByIdAndDelete(videoId)
+        console.log(" Deletion of Document ❌: " , DeleteVideo);
+    
+        if ( !DeleteVideo ) {
+            return res.json(
+                new ApiError(408 , "Video is not Deleted  properly")
+            )
+        }
+
+        return res.json(
+            new  ApiResponse(201 , {data : DeleteVideo} , {message : "Video Deletion is Done"})
+        )
+    } catch (error) {
+        res.json( 
+            new ApiError(404 , "Error Delete Video By Id " + error.message)
+        )
+    }
+
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
+    try {
+        const { videoId } = req.params;
+    
+        if( !videoId ) {
+            res.json( 
+                new ApiError(209 , "There no change detected")
+            )
+        }
+        const videoInstance = await Video.findById(videoId);
+        const ToggleStatus = await Video.findByIdAndUpdate( videoId,
+        {
+            $set :{
+                ispublished : !videoInstance.ispublished
+            }
+        },
+        {
+            new : true
+        })
+        
+    
+        if ( !videoInstance ){
+            return res.json(
+                new ApiError( 403 , "Video Did not Get By Mongo")
+            )
+        }
+        if ( !ToggleStatus ){
+            return res.json(
+                new ApiError( 403 , "Video Did not Get By Mongo")
+            )
+        }
+    
+        return res.json(
+            new ApiResponse(200 , {data : ToggleStatus} , {message : "Togglge Publish Status"})
+        )
+    } catch (error) {
+        res.json( 
+            new ApiError(404 , "Error Toggle VideoSta Status " + error.message)
+        )
+    }
 })
 
 export {
