@@ -41,19 +41,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
             })
         }
 
-        // // query for thumbnail 
-        // if (thumbnailQuery) {
-        //     pipeline.push({
-        //         $match: {
-        //             thumbnail: {
-        //                 $regex: thumbnailQuery,
-        //                 $options: 'im'
-        //             }
-        //         }
-        //     })
-        // }
-
-
         // is video Published 
         pipeline.push({
             $match: {
@@ -312,8 +299,8 @@ const getVideoById = asyncHandler(async (req, res) => {
                                         if: {
                                             $in: [req?.user?._id, "$subscriptions.subscriber"]
                                         },
-                                        then: false,
-                                        else: true
+                                        then: true,
+                                        else: false
                                     }
                                 }
                             }
