@@ -33,6 +33,10 @@ const videoSchema = new mongoose.Schema({
     owner : {
         type : mongoose.Schema.Types.ObjectId,
         ref : "User"
+    },
+    commentSection: {
+        type : Boolean,
+        default : true
     }
 },
 {

@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { authToken } from "../middlewares/auth.middleware";
+import { authToken } from "../middlewares/auth.middleware.js";
 import { getSubscribedChannels, 
     getUserChannelSubscribers, 
-    toggleSubscription } from "../controllers/subscriptions.controllers";
+    toggleSubscription } from "../controllers/subscriptions.controllers.js";
 
 const router = Router();
 

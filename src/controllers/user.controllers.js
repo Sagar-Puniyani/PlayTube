@@ -5,6 +5,7 @@ import {deleteFromClouydinary, uploadOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiRespone.js"
 import jwt  from "jsonwebtoken";
 import mongoose from "mongoose";
+import logger from "../utils/logger.js";
 
 const GenerateAccessTokenandRefreshToken = async( userId ) => {
     try {
@@ -60,9 +61,10 @@ const registerUser = asyncHandler(async (req , res ) =>{
 
     if (existedUser){
         throw new ApiError(409 , "User Name and Email is Already been Taken ")
-    }
+    }  
+    
+    const avatarLocalPath = req.files?.avatar[0]?.path;
 
-    const avatarLocalPath = req.files?.avatar[0]?.path
     let coverImageLocalPath
     if (req.files && req.files.coverImage instanceof Array && req.files.coverImage.length >0 ){
         coverImageLocalPath = req.files?.coverImage[0].path;
@@ -322,7 +324,8 @@ const UpdateAccountDetails = asyncHandler(async(req , res ) => {
 const updatecoverImage = asyncHandler(async(req , res) => {
     try {
         const coverImagepath = req.file?.path;
-        const assetspath = req.user?.public_id
+        const assetspath = req.user?.public_id;
+        logger.help("Assets path " , assetspath);
         console.log("coverImagepath " ,  coverImagepath );
         if ( !coverImagepath ) {
             res.json(

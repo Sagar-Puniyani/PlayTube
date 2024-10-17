@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { authToken } from "../middlewares/auth.middleware";
+import { authToken } from "../middlewares/auth.middleware.js";
 import {    getLikedVideos,
             toggleCommentLike,
             toggleTweetLike, 
             toggleVideoLike 
-        } from "../controllers/like.controllers";
+        } from "../controllers/like.controllers.js";
 
 const router = Router();
 
