@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const replyschema = new mongoose.Schema(
     {
-        connent: {
+        content: {
             type: String,
             required: true
         },
@@ -10,7 +10,7 @@ const replyschema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Comment"
         },
-        owner: {
+        replyedBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },

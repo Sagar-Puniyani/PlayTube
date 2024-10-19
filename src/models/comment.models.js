@@ -3,7 +3,7 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const commentschema = new mongoose.Schema(
     {
-        connent : {
+        content : {
             type : String,
             required : true 
         },
