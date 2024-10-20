@@ -3,11 +3,12 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiRespone.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import { User } from "../models/user.models.js";
+import { Subscription } from "../models/subscriptions.models.js";
 
 const toggleSubscription = asyncHandler(async (req, res) => {
   const { channelId } = req.params;
 
-  if (!channelId && !isValidObjectId(channelId)) {
+  if (!channelId || !isValidObjectId(channelId)) {
     res.json(new ApiError(407, "Error In Channel Identification "));
   }
 
@@ -16,6 +17,8 @@ const toggleSubscription = asyncHandler(async (req, res) => {
   if (!channel) {
     throw new ApiError(404, "Channel Not Found");
   }
+
+
 
   const isSubscribed = await Subscription.findOne({
     subscriber: req.user._id,
@@ -47,7 +50,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
   const { channelId } = req.params;
 
-  if (!channelId && !isValidObjectId(channelId)) {
+  if (!channelId || !isValidObjectId(channelId)) {
     res.json(new ApiError(407, "Error In Channel Identification "));
   }
 
@@ -133,7 +136,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 const getSubscribedChannels = asyncHandler(async (req, res) => {
   const { subscriberId } = req.params;
 
-  if (!subscriberId && !isValidObjectId(subscriberId)) { {
+  if (!subscriberId || !isValidObjectId(subscriberId)) { {
     res.json(new ApiError(407, "Error In Subscription Identification "));
   }
 }
@@ -241,13 +244,12 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     }
   ]);
 
-});
-
-  
 
   return res
         .status(200)
         .json(new ApiResponse(200, subscribedChannels, "Subscribed Channels List"));
+
+});
 
 
 export { toggleSubscription,

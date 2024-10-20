@@ -119,7 +119,7 @@ const addComment = asyncHandler(async (req, res) => {
   const {videoId} = req.params;
   const {content} = req.body;
 
-  if (!videoId && !isValidObjectId(videoId)) {
+  if (!videoId || !isValidObjectId(videoId)) {
     throw new ApiError(407, "Error In Video Identification ");
   }
 
@@ -152,7 +152,7 @@ const updateComment = asyncHandler(async (req, res) => {
     const { commentId } = req.params;
     const {content} = req.body.content;
 
-    if (!commentId && !isValidObjectId(commentId)) {
+    if (!commentId || !isValidObjectId(commentId)) {
         throw new ApiError(407, "Error In Comment Identification ");
     }
 
@@ -189,7 +189,7 @@ const updateComment = asyncHandler(async (req, res) => {
 const deleteComment = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
 
-  if (!commentId && !isValidObjectId(commentId)) {
+  if (!commentId || !isValidObjectId(commentId)) {
     throw new ApiError(407, "Error In Comment Identification ");
   }
 

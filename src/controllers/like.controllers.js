@@ -9,7 +9,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 // toggle video like
 const toggleVideoLike = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  if (!videoId && !isValidObjectId(videoId)) {
+  if (!videoId || !isValidObjectId(videoId)) {
     throw ApiError(407, "Error In Video Identification ");
   }
 
@@ -45,11 +45,11 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 const toggleCommentLike = asyncHandler(async (req, res) => {
   const { commentId, videoId } = req.params;
 
-  if (!commentId && !isValidObjectId(commentId)) {
+  if (!commentId || !isValidObjectId(commentId)) {
     throw ApiError(407, "Error In Comment Identification ");
   }
 
-  if (!videoId && !isValidObjectId(videoId)) {
+  if (!videoId || !isValidObjectId(videoId)) {
     throw ApiError(407, "Error In Video Identification ");
   }
 
@@ -91,7 +91,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 const toggleTweetLike = asyncHandler(async (req, res) => {
   const { tweetId } = req.params;
 
-  if (!tweetId && !isValidObjectId(tweetId)) {
+  if (!tweetId || !isValidObjectId(tweetId)) {
     throw ApiError(407, "Error In Tweet Identification ");
   }
 
@@ -129,10 +129,10 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 const toggleReplyLike = asyncHandler(async (req, res) => {
   const { replyId, videoId } = req.params;
 
-  if (!replyId && !isValidObjectId(replyId)) {
+  if (!replyId || !isValidObjectId(replyId)) {
     throw ApiError(407, "Error In Reply Identification ");
   }
-  if (!videoId && !isValidObjectId(videoId)) {
+  if (!videoId || !isValidObjectId(videoId)) {
     throw ApiError(407, "Error In Video Identification ");
   }
 

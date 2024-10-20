@@ -31,7 +31,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
 const getUserPlaylists = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
-  if (!userId && !isValidObjectId(userId)) {
+  if (!userId || !isValidObjectId(userId)) {
     throw new ApiError(407, "Error In User Identification ");
   }
 
@@ -129,7 +129,7 @@ getUserPlaylist
 const getPlaylistById = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
 
-  if (!playlistId && !isValidObjectId(playlistId)) {
+  if (!playlistId || !isValidObjectId(playlistId)) {
     throw new ApiError(407, "Error In Playlist Identification ");
   }
 
@@ -267,11 +267,11 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
 
-  if (!playlistId && !isValidObjectId(playlistId)) {
+  if (!playlistId || !isValidObjectId(playlistId)) {
     throw new ApiError(407, "Error In Playlist Identification ");
   }
 
-  if (!videoId && !isValidObjectId(videoId)) {
+  if (!videoId || !isValidObjectId(videoId)) {
     throw new ApiError(407, "Error In Video Identification ");
   }
 
@@ -311,10 +311,10 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
 
-  if (!playlistId && !isValidObjectId(playlistId)) {
+  if (!playlistId || !isValidObjectId(playlistId)) {
     throw new ApiError(407, "Error In Playlist Identification ");
   }
-  if (!videoId && !isValidObjectId(videoId)) {
+  if (!videoId || !isValidObjectId(videoId)) {
     throw new ApiError(407, "Error In Video Identification ");
   }
 
@@ -356,7 +356,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
 const deletePlaylist = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
 
-  if (!playlistId && !isValidObjectId(playlistId)) {
+  if (!playlistId || !isValidObjectId(playlistId)) {
     throw new ApiError(407, "Error In Playlist Identification ");
   }
 
@@ -386,7 +386,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
   const { name, description } = req.body;
 
-  if (!playlistId && !isValidObjectId(playlistId)) {
+  if (!playlistId || !isValidObjectId(playlistId)) {
     throw new ApiError(407, "Error In Playlist Identification ");
   }
 

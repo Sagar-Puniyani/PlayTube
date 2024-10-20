@@ -31,7 +31,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     // When ever query fired pipeline must be changed according to that.🧐
     pipeline = [];
 
-    if (!userId && !isValidObjectId(userId)) {
+    if (!userId || !isValidObjectId(userId)) {
       res.json(new ApiError(405, "User is logged In Properly"));
     }
 
@@ -232,7 +232,7 @@ const getVideoById = asyncHandler(async (req, res) => {
   try {
     const { videoId } = req.params;
     //TODO: get video by id
-    if (!videoId && !isValidObjectId(videoId)) {
+    if (!videoId || !isValidObjectId(videoId)) {
       return res.json(new ApiError(409, "Video Id is Not properly Conveyed"));
     }
     console.log("Video ID : ", videoId);
@@ -243,10 +243,115 @@ const getVideoById = asyncHandler(async (req, res) => {
       return res.json(new ApiError(407, "Video Database is Not Uploaded"));
     }
 
-    const video = await Video.aggregate([
+    console.log("Video Instance : ", videoInstance);
+    console.log("Aggregation Started");
+
+    // const videoAggregate = await Video.aggregate([
+    //   {
+    //     $match: {
+    //       _id: mongoose.Types.ObjectId(videoId),
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "users",
+    //       localField: "owner",
+    //       foreignField: "_id",
+    //       as: "owner",
+    //       pipeline: [
+    //         {
+    //           $lookup: {
+    //             from: "subscriptions",
+    //             localField: "_id",
+    //             foreignField: "channel",
+    //             as: "subscriptions",
+    //           },
+    //         },
+    //         {
+    //           $addFields: {
+    //             subscribersCount: {
+    //               $size: "$subscriptions",
+    //             },
+    //             isSubscribed: {
+    //               $cond: {
+    //                 if: {
+    //                   $in: [req?.user?._id, "$subscriptions.subscriber"],
+    //                 },
+    //                 then: true,
+    //                 else: false,
+    //               },
+    //             },
+    //           },
+    //         },
+    //         {
+    //           $project: {
+    //             _id: 1,
+    //             username: 1,
+    //             avatar: 1,
+    //             subscribersCount: 1,
+    //             isSubscribed: 1,
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "likes",
+    //       localField: "_id",
+    //       foreignField: "video",
+    //       as: "likes",
+    //       pipeline: [
+    //         {
+    //           $match: {
+    //             comment: { $exists: false },
+    //             reply: { $exists: false },
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   },
+    //   {
+    //     $addFields: {
+    //       owner: {
+    //         $first: "$owner",
+    //       },
+    //       likecount: {
+    //         $size: "$likes",
+    //       },
+    //       isLiked: {
+    //         $cond: {
+    //           if: {
+    //             $in: [req?.user?._id, "$likes.likedBy"],
+    //           },
+    //           then: true,
+    //           else: false,
+    //         },
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       _id: 1,
+    //       videoFile: 1,
+    //       owner: 1,
+    //       title: 1,
+    //       description: 1,
+    //       duration: 1,
+    //       createdAt: 1,
+    //       views: 1,
+    //       likesCount: 1,
+    //       isLiked: 1,
+    //       thumbnail: 1,
+    //       commentSection: 1,
+    //     },
+    //   },
+    // ]);
+
+    const videoAggregate = await Video.aggregate([
       {
         $match: {
-          _id: mongoose.Types.ObjectId(videoId),
+          _id: new mongoose.Types.ObjectId(videoId),
         },
       },
       {
@@ -260,19 +365,19 @@ const getVideoById = asyncHandler(async (req, res) => {
               $lookup: {
                 from: "subscriptions",
                 localField: "_id",
-                foreignField: "owner",
+                foreignField: "channel",
                 as: "subscriptions",
               },
             },
             {
               $addFields: {
-                subcribersCount: {
-                  $size: "$subscriptions",
+                subscribersCount: {
+                  $size: "$subscriptions", // Corrected typo: 'subscribersCount'
                 },
-                issubscribed: {
+                isSubscribed: {
                   $cond: {
                     if: {
-                      $in: [req?.user?._id, "$subscriptions.subscriber"],
+                      $in: [new mongoose.Types.ObjectId(req?.user?._id), "$subscriptions.subscriber"], // Ensure req.user._id is passed
                     },
                     then: true,
                     else: false,
@@ -286,7 +391,7 @@ const getVideoById = asyncHandler(async (req, res) => {
                 username: 1,
                 avatar: 1,
                 subscribersCount: 1,
-                isSubscribed: 1,
+                isSubscribed: 1, // Consistent field name
               },
             },
           ],
@@ -313,13 +418,13 @@ const getVideoById = asyncHandler(async (req, res) => {
           owner: {
             $first: "$owner",
           },
-          likecount: {
-            $size: "$likes",
+          likesCount: {
+            $size: "$likes", // Consistent naming: likesCount
           },
           isLiked: {
             $cond: {
               if: {
-                $in: [req?.user?._id, "$likes.likedBy"],
+                $in: [new mongoose.Types.ObjectId(req?.user?._id), "$likes.likedBy"], // Ensure req.user._id is passed
               },
               then: true,
               else: false,
@@ -337,30 +442,36 @@ const getVideoById = asyncHandler(async (req, res) => {
           duration: 1,
           createdAt: 1,
           views: 1,
-          likesCount: 1,
+          likesCount: 1, // Use consistent field name
           isLiked: 1,
           thumbnail: 1,
           commentSection: 1,
         },
       },
     ]);
+     
 
-    if (!video || video.length === 0) {
-      new ApiResponse(400, { message: "Video Not Found" });
+    if (!videoAggregate  || videoAggregate.length === 0) {
+      return res.json(new ApiError(407, "Video Database is Not Full populated"));
     }
+
+    console.log("Video Aggregate : ", videoAggregate);
 
     return res.json(
       new ApiResponse(206, { data: videoInstance }, { message: "Video Found" })
     );
   } catch (error) {
-    res.json(new ApiError(404, "Error Get Video By Id " + error.message));
+    console.error("Error in Get Video By Id: ", error.message);
+    res.status(404) .json(new ApiError(404, "Error Get Video By Id " + error.message));
   }
 });
+
+
 
 const incrementVideoCount = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
 
-  if (!videoId && !isValidObjectId(videoId)) {
+  if (!videoId || !isValidObjectId(videoId)) {
     return res.json(new ApiError(406, "Video Identity didn't provided"));
   }
 
@@ -390,7 +501,7 @@ const incrementVideoCount = asyncHandler(async (req, res) => {
 const addToWatchHistory = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
 
-  if (!videoId && !isValidObjectId(videoId)) {
+  if (!videoId || !isValidObjectId(videoId)) {
     return res.json(new ApiError(406, "Video Identity didn't provided"));
   }
 
@@ -422,7 +533,7 @@ const addToWatchHistory = asyncHandler(async (req, res) => {
 const deletParticularVideoFromWatchHistory = asyncHandler(async (req, res) => {
   const watchHistoryId = req.params.watchHistoryId;
 
-  if (!watchHistoryId && !isValidObjectId(watchHistoryId)) {
+  if (!watchHistoryId || !isValidObjectId(watchHistoryId)) {
     return res.json(
       new ApiError(406, "Watch History Identity didn't provided")
     );
@@ -451,7 +562,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
     // update video details like title, description, thumbnail
 
-    if (!videoId && !isValidObjectId(videoId)) {
+    if (!videoId || !isValidObjectId(videoId)) {
       return res.json(new ApiError(406, "Video Identity didn't provided"));
     }
 
@@ -518,7 +629,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
     // delete video
 
-    if (!videoId && !isValidObjectId(videoId)) {
+    if (!videoId || !isValidObjectId(videoId)) {
       res.json(new ApiError(209, "There no change detected"));
     }
 
@@ -573,7 +684,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
   try {
     const { videoId } = req.params;
 
-    if (!videoId && !isValidObjectId(videoId)) {
+    if (!videoId || !isValidObjectId(videoId)) {
       res.json(new ApiError(209, "There no change detected"));
     }
     const videoInstance = await Video.findById(videoId);
@@ -613,7 +724,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 const toggleCommentSection = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
 
-  if (!videoId && !isValidObjectId(videoId)) {
+  if (!videoId || !isValidObjectId(videoId)) {
     res.json(new ApiError(209, "There no change detected"));
   }
 

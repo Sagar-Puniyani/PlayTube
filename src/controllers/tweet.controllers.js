@@ -32,7 +32,7 @@ const createTweet = asyncHandler(async (req, res) => {
 const getUserTweets = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
 
-  if (!userId && !isValidObjectId(userId)) {
+  if (!userId || !isValidObjectId(userId)) {
     res.json(new ApiError(408, "Object Id is Invalid "));
   }
 
@@ -160,7 +160,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
 const updateTweet = asyncHandler(async (req, res) => {
   const { tweetId } = req.params?.tweetId;
 
-  if (!tweetId && !isValidObjectId(tweetId)) {
+  if (!tweetId || !isValidObjectId(tweetId)) {
     {
       res.json(new ApiError(409, "Invalid Tweet Signature"));
     }

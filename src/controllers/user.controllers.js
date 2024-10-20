@@ -334,7 +334,7 @@ const updatecoverImage = asyncHandler(async (req, res) => {
     try {
         const coverImagepath = req.file?.path;
         const assetspath = req.user?.public_id;
-        logger.help("Assets path ", assetspath);
+    
         console.log("coverImagepath ", coverImagepath);
         if (!coverImagepath) {
             res.json(
@@ -704,5 +704,6 @@ export {
     updatecoverImage,
     updateAvatarImage,
     getUserProfile,
-    getWatchHistory
+    getWatchHistory,
+    deleteWatchHistory
 };

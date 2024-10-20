@@ -8,7 +8,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getChannelStats = asyncHandler(async (req, res) => {
   const userId = req?.user?._id;
-  if (!userId && !isValidObjectId(userId)) {
+  if (!userId || !isValidObjectId(userId)) {
     throw ApiError(407, "User Not Found");
   }
 
@@ -102,7 +102,7 @@ todo: getChannelstats:- total video views, total subscribers, total videos, tota
 
 const getChannelVideos = asyncHandler(async (req, res) => {
     const userId = new mongoose.Types.ObjectId(req?.user?._id);
-    if (!userId && !isValidObjectId(userId)) {
+    if (!userId || !isValidObjectId(userId)) {
         throw ApiError(407, "User Not Found");
     }
 
