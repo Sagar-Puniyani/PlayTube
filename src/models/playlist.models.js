@@ -1,24 +1,23 @@
-import mongoose  from "mongoose";
+import mongoose from "mongoose";
 
 const palylistschema = new mongoose.Schema(
-    {
-        name : {
-            type : String,
-            required : true
-        },
-        description : {
-            type : String,
-            required : true 
-        },
-        owner : {
-            type : mongoose.Schema.Types.ObjectId,
-            ref : "User"
-        }
-
+  {
+    name: {
+      type: String,
+      required: true,
     },
-    {
-        timestamps : true
-    }
+    description: {
+      type: String,
+      required: true,
+    },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
-export const Playlist = mongoose.model("Playlist" , palylistschema)
+export const Playlist = mongoose.model("Playlist", palylistschema);

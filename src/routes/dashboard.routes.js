@@ -1,9 +1,9 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
-    getChannelStats,
-    getChannelVideos,
-} from "../controllers/dashboard.controllers.js"
-import {authToken} from "../middlewares/auth.middleware.js"
+  getChannelStats,
+  getChannelVideos,
+} from "../controllers/dashboard.controllers.js";
+import { authToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -12,4 +12,4 @@ router.use(authToken); // Apply verifyJWT authToken middleware to all routes in 
 router.route("/stats").get(getChannelStats);
 router.route("/videos").get(getChannelVideos);
 
-export default router
+export default router;

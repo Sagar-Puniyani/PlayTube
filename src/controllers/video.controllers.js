@@ -14,44 +14,45 @@ import {
 } from "../utils/cloudinary.js";
 import { WatchHistory } from "../models/watchHistory.models.js";
 
-// get All video is for default UI of PlayTube according to page and limit
 const getAllVideos = asyncHandler(async (req, res) => {
   try {
     const {
       page = 1,
       limit = 10,
       query,
-      sortBy,
-      sortType,
+      sortBy = "createdAt",
+      sortType = "desc",
       channelUserId,
     } = req.query;
     const userId = req.user?._id;
 
-    // Aggregation pipeline injecting on the need basis
-    // When ever query fired pipeline must be changed according to that.🧐
-    pipeline = [];
+    console.log("🚀 ~ file: video.controllers.js:~getAllVideos");
+    console.log("page:", page, "limit:", limit);
+    console.log("query:", query);
+    console.log("sortBy:", sortBy);
+    console.log("sortType:", sortType);
+    console.log("channelUserId:", channelUserId);
+    console.log("userId:", userId);
+
+    const sortedOrder = sortType === "asc" ? 1 : -1;
+
+    // Aggregation pipeline
+    const pipeline = [
+      {
+        $match: {  ispublished: true },
+      },
+    ];
 
     if (!userId || !isValidObjectId(userId)) {
-      res.json(new ApiError(405, "User is logged In Properly"));
+      return res.status(405).json(new ApiError(405, "User is not logged in properly"));
     }
 
-    // channelUserId is the Id of User who owns the particular channel
-    if (channelUserId) {
+    if (channelUserId && isValidObjectId(channelUserId)) {
       pipeline.push({
-        $match: {
-          owner: new mongoose.Types.ObjectId.createFromHexString(userId),
-        },
+        $match: { owner: new mongoose.Types.ObjectId(channelUserId) },
       });
     }
 
-    // is video Published
-    pipeline.push({
-      $match: {
-        ispublished: true,
-      },
-    });
-
-    // User Details
     pipeline.push(
       {
         $lookup: {
@@ -61,20 +62,14 @@ const getAllVideos = asyncHandler(async (req, res) => {
           as: "channel",
           pipeline: [
             {
-              $project: {
-                _id: 0,
-                username: 1,
-                avatar: 1,
-              },
+              $project: { _id: 0, username: 1, avatar: 1 },
             },
           ],
         },
       },
       {
         $addFields: {
-          owner: {
-            $first: "$channel",
-          },
+          owner: { $first: "$channel" },
         },
       },
       {
@@ -94,7 +89,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
       }
     );
 
-    // query for title
     if (query) {
       pipeline.push({
         $match: {
@@ -107,42 +101,33 @@ const getAllVideos = asyncHandler(async (req, res) => {
       });
     }
 
-    // sorting on basis of sortBy and type of sort is sortType
-    if (sortBy && sortType) {
-      pipeline.push({
-        $sort: {
-          [sortBy]: sortType === "acs" ? 1 : -1,
-        },
-      });
-    } else {
-      pipeline.push({
-        $sort: {
-          createdAt: -1,
-        },
-      });
-    }
+    pipeline.push({
+      $sort: { [sortBy]: sortedOrder },
+    });
 
-    // page and limit of videos
+    // Pagination options
     const options = {
       page: parseInt(page, 10),
       limit: parseInt(limit, 10),
     };
 
-    // Instances of those video output query
-    const VidoeInstances = await Video.aggregate(pipeline, options);
+    console.log("Aggregation Pipeline:", JSON.stringify(pipeline));
 
-    /*
-        const videoInstances = await Video.aggregate(pipeline).skip((options.page - 1) * options.limit).limit(options.limit);
-        */
-    if (!VidoeInstances) {
-      res.json(new ApiError(410, "Error in Populating Database Call"));
+    // Aggregate and paginate
+    const videoAggregate = Video.aggregate(pipeline);
+    const videoInstances = await Video.aggregatePaginate(videoAggregate, options);
+
+    if (!videoInstances.docs.length) {
+      return res.status(410).json(new ApiError(410, "Error in populating database call"));
     }
 
-    return res.json(new ApiResponse(200, VidoeInstances, "Feed Videos"));
+    return res.status(200).json(new ApiResponse(200, videoInstances, "Feed Videos"));
   } catch (error) {
-    res.json(new ApiError(500, "Server Error " + error.message));
+    console.log("Error:", error.message);
+    return res.status(500).json(new ApiError(500, "Server Error: " + error.message));
   }
 });
+
 
 const publishAVideo = asyncHandler(async (req, res) => {
   try {
@@ -223,9 +208,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
 });
 
 const getVideoById = asyncHandler(async (req, res) => {
-  /*
+     /*
         if video is get to UI on Video Player than 
-        view Count should be increased by +1
+        view Count should be increased by +1(having the separate function)
         in different controller
         and its impact on another tables
      */
@@ -514,7 +499,7 @@ const addToWatchHistory = asyncHandler(async (req, res) => {
   // add video to watch history
   const watchHistory = await WatchHistory.create({
     userId: req.user?._id,
-    video: videoId,
+    videoId: videoId,
   });
 
   if (!watchHistory) {
@@ -531,13 +516,18 @@ const addToWatchHistory = asyncHandler(async (req, res) => {
 });
 
 const deletParticularVideoFromWatchHistory = asyncHandler(async (req, res) => {
-  const watchHistoryId = req.params.watchHistoryId;
+  
+  console.log("🧐 ~route: /wh/:watchHistoryId , deletewatchHistory")
+  const watchHistoryId = req.params.id;
+  console.log("watchHistoryId : ", req.params);
+
 
   if (!watchHistoryId || !isValidObjectId(watchHistoryId)) {
-    return res.json(
+    return res.status(406).json(
       new ApiError(406, "Watch History Identity didn't provided")
     );
   }
+
 
   const watchHistoryInstance =
     await WatchHistory.findByIdAndDelete(watchHistoryId);
@@ -630,7 +620,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     // delete video
 
     if (!videoId || !isValidObjectId(videoId)) {
-      res.json(new ApiError(209, "There no change detected"));
+      res.status(209).json(new ApiError(209, "There no change detected"));
     }
 
     // 1. first is to delete Video from Cloudinary
@@ -659,7 +649,9 @@ const deleteVideo = asyncHandler(async (req, res) => {
       .split(".")[0];
     console.log("publicThumbnailUrl : ", publicThumbnailUrl);
 
-    await deleteVideoFromClouydinary("videos/" + publicUrlID);
+
+
+    await deleteVideoFromClouydinary("videos/" + publicVideoUrlID);
     await deleteFromClouydinary("assets/" + publicThumbnailUrl);
 
     // Delete Video, Videos Comments and comment Replies Likes
@@ -668,15 +660,17 @@ const deleteVideo = asyncHandler(async (req, res) => {
     await Reply.deleteMany({ video: videoId });
     await WatchHistory.deleteMany({ videoId: videoId });
 
+    console.log("Video Deletion is Done");
     return res.json(
       new ApiResponse(
         201,
-        { data: DeleteVideo },
+        DeleteVideo ,
         { message: "Video Deletion is Done" }
       )
     );
   } catch (error) {
-    res.json(new ApiError(404, "Error Delete Video By Id " + error.message));
+    console.log("Error : ", error);
+    return res.json(new ApiError(404, "Error Delete Video By Id " + error.message));
   }
 });
 
@@ -716,48 +710,59 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     );
   } catch (error) {
     res.json(
-      new ApiError(404, "Error Toggle VideoSta Status " + error.message)
+      new ApiError(404, "Error Toggle Video Status " + error.message)
     );
   }
 });
 
 const toggleCommentSection = asyncHandler(async (req, res) => {
-  const { videoId } = req.params;
-
-  if (!videoId || !isValidObjectId(videoId)) {
-    res.json(new ApiError(209, "There no change detected"));
-  }
-
-  const videoInstance = await Video.findById(videoId);
-
-  // only owner can toggle comment section
-  if (videoInstance?.owner.toString() !== req?.user?._id) {
-    return res.json(new ApiError(403, "Only Owner Can Toggle Comment Section"));
-  }
-
-  const ToogleCommentSection = await Video.findByIdAndUpdate(
-    videoId,
-    {
-      $set: {
-        commentsection: !videoInstance.commentsection,
-      },
-    },
-    {
-      new: true,
+  try {
+    console.log("🚀 ~ file: video.controllers.js:toggleCommentSection ~ toggleCommentSection:")
+    const { videoId } = req.params;
+  
+    if (!videoId || !isValidObjectId(videoId)) {
+      res.status(209).json(new ApiError(209, "There no change detected"));
     }
-  );
-
-  if (!ToogleCommentSection) {
-    return res.json(new ApiError(403, "Video Did not Get By Database"));
+  
+    const videoInstance = await Video.findById(videoId);
+    console.log("videoInstance : ", videoInstance);
+  
+    // only owner can toggle comment section
+    if (videoInstance?.owner.toString() !== req?.user?._id) {
+      return res.status(403).json(new ApiError(403, "Only Owner Can Toggle Comment Section"));
+    }
+  
+    const ToogleCommentSection = await Video.findByIdAndUpdate(
+      videoId,
+      {
+        $set: {
+          commentSection: !videoInstance.commentSection,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+  
+    console.log("ToogleCommentSection : ", ToogleCommentSection);
+  
+    if (!ToogleCommentSection) {
+      return res.status(409).json(new ApiError(403, "Video Did not Get By Database"));
+    }
+  
+    return res
+      .status(200)
+      .json(
+      new ApiResponse(
+        200,
+        { commentSection: ToogleCommentSection.commentSection },
+        { message: "Togglge Comment Section" }
+      )
+    );
+  } catch (error) {
+    console.error("Error : ", error.message);
+    return res.json(new ApiError(404, "Error Toggle Comment Section " + error.message));
   }
-
-  return res.json(
-    new ApiResponse(
-      200,
-      { commentSection: ToogleCommentSection.commentsection },
-      { message: "Togglge Comment Section" }
-    )
-  );
 });
 
 export {
